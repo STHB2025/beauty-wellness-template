@@ -1,0 +1,62 @@
+---
+import BookingLink from './BookingLink.astro';
+const { business, configuredForm } = Astro.props;
+const formId = business.formEndpoint.split('/').at(-1);
+---
+{configuredForm ? (
+  <form id="appointment-form" class="appointment-form" action={business.formEndpoint} method="POST" data-form-id={formId}>
+    <input type="hidden" name="_subject" value={`New appointment request — ${business.name}`} />
+    <div class="form-row">
+      <label>Your name<input name="name" autocomplete="name" data-fs-field required placeholder="e.g. Alex Morgan" /><span data-fs-error="name"></span></label>
+      <label>Phone number<input type="tel" name="phone" autocomplete="tel" data-fs-field required placeholder="e.g. 082 123 4567" /><span data-fs-error="phone"></span></label>
+    </div>
+    <div class="form-row">
+      <label>Email address<input type="email" name="email" autocomplete="email" data-fs-field required placeholder="you@example.com" /><span data-fs-error="email"></span></label>
+      <label>I'm interested in<select name="service" data-fs-field required><option value="" disabled selected>Choose a service</option>{business.services.map((service) => <option value={service.name}>{service.name}</option>)}<option>Something else</option></select><span data-fs-error="service"></span></label>
+    </div>
+    <div class="form-row">
+      <label>Preferred date<input type="date" name="date" data-fs-field required /><span data-fs-error="date"></span></label>
+      <label>Preferred time<select name="time" data-fs-field required><option value="" disabled selected>Choose a time</option><option>Morning (09:00–12:00)</option><option>Afternoon (12:00–15:00)</option><option>Late afternoon (15:00–18:00)</option></select><span data-fs-error="time"></span></label>
+    </div>
+    <label>A little more to know? <span class="optional">OPTIONAL</span><textarea name="message" rows="3" placeholder="Anything you'd like us to know before we meet?"></textarea></label>
+    <div class="form-feedback" data-fs-success role="status" aria-live="polite"></div>
+    <div class="form-feedback" data-fs-error role="alert" aria-live="assertive"></div>
+    <button class="button button-dark form-submit" type="submit" data-fs-submit-btn>Send appointment request <span aria-hidden="true">↗</span></button>
+    <p class="form-note">This is a request, not a confirmed booking. We'll reply personally to arrange your visit.</p>
+  </form>
+) : (
+  <div class="form-unconfigured">
+    <span class="form-icon">✳</span>
+    <h3>Let's find your time.</h3>
+    <p>The appointment request form will be ready when the business configures its secure form endpoint. For now, send an enquiry directly and we'll get back to you soon.</p>
+    <div class="fallback-actions">
+      <a class="button button-dark" href={`mailto:${business.email}?subject=${encodeURIComponent('Appointment request')}&body=${encodeURIComponent('Hello, I would like to request an appointment.\n\nService:\nPreferred date:\nPreferred time:\n\nMy name:\nPhone number:\n')}`}>Email to enquire <span aria-hidden="true">↗</span></a>
+      {business.whatsappNumber && <BookingLink business={business} />}
+    </div>
+    <p class="form-note">An enquiry is not a confirmed booking. We'll reply personally to arrange your visit.</p>
+  </div>
+)}
+
+<script>
+  import { initForm } from '@formspree/ajax/dist/index.mjs';
+
+  const form = document.querySelector('#appointment-form');
+  if (form instanceof HTMLFormElement) {
+    initForm({
+      formElement: '#appointment-form',
+      formId: form.dataset.formId,
+      renderSuccess: ({ form }) => {
+        const status = document.createElement('div');
+        status.className = 'form-result';
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+        const heading = document.createElement('h3');
+        heading.textContent = 'Your request is on its way.';
+        const message = document.createElement('p');
+        message.textContent = 'We received your appointment request and will contact you to arrange a time. Your appointment is not confirmed yet.';
+        status.append(heading, message);
+        form.replaceWith(status);
+      },
+    });
+  }
+</script>

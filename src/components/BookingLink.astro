@@ -1,0 +1,11 @@
+---
+const { business, service = '' } = Astro.props;
+const message = service ? `${business.whatsappGreeting} I'm interested in ${service}.` : business.whatsappGreeting;
+const href = business.whatsappNumber
+  ? `https://wa.me/${business.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+  : `mailto:${business.email}?subject=${encodeURIComponent('Appointment enquiry')}&body=${encodeURIComponent(message)}`;
+const label = business.whatsappNumber ? 'Book on WhatsApp' : 'Enquire by email';
+---
+<a class="button button-dark" href={href} target={business.whatsappNumber ? '_blank' : undefined} rel={business.whatsappNumber ? 'noopener noreferrer' : undefined} aria-label={`${label}${service ? ` for ${service}` : ''}`}>
+  {label}<span aria-hidden="true">↗</span>
+</a>

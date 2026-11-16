@@ -1,0 +1,24 @@
+---
+import '../styles/global.css';
+import { theme } from '../data/business.js';
+const { title, description, businessName = 'The Sunday Studio', lang = 'en-ZA' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com');
+---
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f8f5f0" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${title} | ${businessName}`} />
+    <meta property="og:description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
+    <title>{title} | {businessName}</title>
+  </head>
+  <body style={`--paper:${theme.background};--white:${theme.surface};--ink:${theme.ink};--muted:${theme.muted};--terra:${theme.accent};--terra-dark:${theme.accentDark};--blush:${theme.blush}`}><slot /></body>
+</html>
